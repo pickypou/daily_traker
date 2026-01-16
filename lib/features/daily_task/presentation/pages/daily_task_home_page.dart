@@ -5,6 +5,8 @@ import '../../data/repositories/task_repository_impl.dart';
 import '../../domain/usecases/add_task_usecase.dart';
 import '../../domain/usecases/get_tasks_usecase.dart';
 import '../bloc/daily_task_bloc.dart';
+import 'add_task_page.dart';
+import 'daily_task_page.dart';
 
 class DailyTaskHomePage extends StatelessWidget {
   const DailyTaskHomePage({super.key});
@@ -26,9 +28,21 @@ class DailyTaskHomePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildButton(context, "Voir ma liste de tâches", () {}),
+              _buildButton(context, "Voir ma liste de tâches", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DailyTaskPage(),
+                  ),
+                );
+              }),
               const SizedBox(height: 16),
-              _buildButton(context, "Ajouter une tâche", () {}),
+              _buildButton(context, "Ajouter une tâche", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddTaskPage()),
+                );
+              }),
               const SizedBox(height: 16),
               _buildButton(context, "Créer une liste de tâches", () {}),
             ],

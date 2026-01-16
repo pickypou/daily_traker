@@ -12,6 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Daily Tracker',
       builder: (context, child) {
         return Theme(data: AppTheme().theme(context), child: child!);

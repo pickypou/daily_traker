@@ -18,3 +18,21 @@ class AddDailyTask extends DailyTaskEvent {
   @override
   List<Object> get props => [task];
 }
+
+class ToggleTaskCompletion extends DailyTaskEvent {
+  final String taskId;
+
+  const ToggleTaskCompletion(this.taskId);
+
+  @override
+  List<Object> get props => [taskId];
+}
+
+class DeleteTask extends DailyTaskEvent {
+  final String taskId;
+
+  const DeleteTask(this.taskId);
+
+  @override
+  List<Object> get props => [taskId];
+}

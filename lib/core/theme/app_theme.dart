@@ -6,7 +6,7 @@ class AppTheme {
   // Palette de couleurs
   static const Color _background = Color(0xFFFFFDE1);
   static const Color _titles = Color(0xFF93BD57);
-  static const Color _textNormal = Color(0xFFFBE580);
+  static const Color _textNormal = Colors.black;
   static const Color _buttonBackground = Color(0xFF980404);
   static const Color _buttonText = Color(0xFFFBE580);
 
@@ -14,6 +14,21 @@ class AppTheme {
   static const double paddingSmall = 8.0;
   static const double paddingMedium = 16.0;
   static const double paddingLarge = 24.0;
+
+  // Helper methods pour accéder facilement aux styles
+  static TextStyle titleStyle(BuildContext context) {
+    final titleFontSize = calculateTitleFontSize(context);
+    return GoogleFonts.roboto(
+      color: _titles,
+      fontSize: titleFontSize,
+      fontWeight: FontWeight.bold,
+    );
+  }
+
+  static TextStyle bodyStyle(BuildContext context) {
+    final normalFontSize = calculateFontSize(context);
+    return GoogleFonts.lato(color: _textNormal, fontSize: normalFontSize);
+  }
 
   ThemeData theme(BuildContext context) {
     final titleFontSize = calculateTitleFontSize(context);
