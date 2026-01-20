@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/custom_button.dart';
 import '../../domain/entities/task_entity.dart';
 import '../bloc/daily_task_bloc.dart';
 import '../bloc/daily_task_event.dart';
@@ -16,8 +18,15 @@ class _AddTaskPageState extends State<AddTaskPage>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
+  final _notificationService = NotificationService();
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+
+  TimeOfDay? _startTime;
+  int? _durationMinutes;
+
+  final List<int> _durationOptions = [15, 30, 45, 60, 90, 120, 180, 240];
 
   @override
   void initState() {
@@ -40,12 +49,30 @@ class _AddTaskPageState extends State<AddTaskPage>
     super.dispose();
   }
 
+  Future<void> _selectTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _startTime ?? TimeOfDay.now(),
+    );
+    if (picked != null) setState(() => _startTime = picked);
+  }
+
   void _submitTask() {
     if (_formKey.currentState?.validate() ?? false) {
+      final notificationId = _startTime != null
+          ? _notificationService.generateNotificationId()
+          : null;
+
       final task = TaskEntity(
         id: DateTime.now().toString(),
         title: _titleController.text.trim(),
+        startTime: _startTime,
+        duration: _durationMinutes != null
+            ? Duration(minutes: _durationMinutes!)
+            : null,
+        notificationId: notificationId,
       );
+
       context.read<DailyTaskBloc>().add(AddDailyTask(task));
       Navigator.pop(context);
     }
@@ -59,7 +86,7 @@ class _AddTaskPageState extends State<AddTaskPage>
       ),
       body: FadeTransition(
         opacity: _fadeAnimation,
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppTheme.paddingLarge),
           child: Form(
             key: _formKey,
@@ -73,52 +100,68 @@ class _AddTaskPageState extends State<AddTaskPage>
                   style: AppTheme.bodyStyle(context),
                   decoration: InputDecoration(
                     hintText: 'Entrez le titre...',
-                    hintStyle: AppTheme.bodyStyle(context).copyWith(
-                      color: AppTheme.bodyStyle(
-                        context,
-                      ).color?.withValues(alpha: 0.5),
-                    ),
+                    hintStyle: AppTheme.bodyStyle(context)
+                        .copyWith(color: AppTheme.bodyStyle(context).color?.withAlpha(128)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                     filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.8),
+                    fillColor: Colors.white.withAlpha(200),
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Le titre ne peut pas être vide';
-                    }
-                    return null;
-                  },
+                  validator: (value) =>
+                      value == null || value.trim().isEmpty ? 'Le titre ne peut pas être vide' : null,
                   autofocus: true,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _submitTask(),
+                  textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: AppTheme.paddingLarge),
+                CustomButton(
+                  label: _startTime != null
+                      ? _startTime!.format(context)
+                      : 'Sélectionner une heure',
+                  icon: Icons.access_time,
+                  onPressed: _selectTime,
+                  isExpanded: false,
+                ),
+                const SizedBox(height: AppTheme.paddingLarge),
+                DropdownButtonFormField<int>(
+                  initialValue: _durationMinutes,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white.withAlpha(200),
+                  ),
+                  hint: Text('Sélectionner une durée', style: AppTheme.bodyStyle(context)),
+                  items: _durationOptions.map((minutes) {
+                    final hours = minutes ~/ 60;
+                    final mins = minutes % 60;
+                    String label;
+                    if (hours > 0 && mins > 0) {
+                      label = '${hours}h ${mins}min';
+                    } else if (hours > 0) {
+                      label = '${hours}h';
+                    } else {
+                      label = '${mins}min';
+                    }
+                    return DropdownMenuItem(
+                      value: minutes,
+                      child: Text(label, style: AppTheme.bodyStyle(context)),
+                    );
+                  }).toList(),
+                  onChanged: (value) => setState(() => _durationMinutes = value),
+                ),
+                const SizedBox(height: AppTheme.paddingLarge * 2),
                 Row(
                   children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: AppTheme.paddingMedium,
-                          ),
-                        ),
-                        child: const Text('Annuler'),
-                      ),
+                    CustomButton(
+                      label: 'Annuler',
+                      onPressed: () => Navigator.pop(context),
                     ),
                     const SizedBox(width: AppTheme.paddingMedium),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _submitTask,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: AppTheme.paddingMedium,
-                          ),
-                        ),
-                        child: const Text('Ajouter'),
-                      ),
+                    CustomButton(
+                      label: 'Ajouter',
+                      onPressed: _submitTask,
                     ),
                   ],
                 ),

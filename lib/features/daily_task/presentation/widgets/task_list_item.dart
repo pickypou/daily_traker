@@ -36,6 +36,18 @@ class _TaskListItemState extends State<TaskListItem>
     super.dispose();
   }
 
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    if (hours > 0 && minutes > 0) {
+      return '${hours}h ${minutes}min';
+    } else if (hours > 0) {
+      return '${hours}h';
+    } else {
+      return '${minutes}min';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -60,13 +72,58 @@ class _TaskListItemState extends State<TaskListItem>
               );
             },
           ),
-          title: Text(
-            widget.task.title,
-            style: AppTheme.bodyStyle(context).copyWith(
-              decoration: widget.task.isCompleted
-                  ? TextDecoration.lineThrough
-                  : TextDecoration.none,
-            ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.task.title,
+                style: AppTheme.bodyStyle(context).copyWith(
+                  decoration: widget.task.isCompleted
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
+                ),
+              ),
+              if (widget.task.startTime != null || widget.task.duration != null)
+                const SizedBox(height: 4),
+              if (widget.task.startTime != null || widget.task.duration != null)
+                Row(
+                  children: [
+                    if (widget.task.startTime != null) ...[
+                      const Icon(Icons.access_time, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        widget.task.startTime!.format(context),
+                        style: AppTheme.bodyStyle(context).copyWith(
+                          fontSize: 12,
+                          color: AppTheme.bodyStyle(
+                            context,
+                          ).color?.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                    if (widget.task.startTime != null &&
+                        widget.task.duration != null)
+                      const SizedBox(width: 12),
+                    if (widget.task.duration != null) ...[
+                      const Icon(Icons.timer, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        _formatDuration(widget.task.duration!),
+                        style: AppTheme.bodyStyle(context).copyWith(
+                          fontSize: 12,
+                          color: AppTheme.bodyStyle(
+                            context,
+                          ).color?.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                    if (widget.task.notificationId != null) ...[
+                      const SizedBox(width: 12),
+                      const Icon(Icons.notifications_active, size: 16),
+                    ],
+                  ],
+                ),
+            ],
           ),
           trailing: IconButton(
             icon: const Icon(Icons.delete_outline),

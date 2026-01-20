@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../utils/calculated_font_size.dart';
 
 class AppTheme {
-  // Palette de couleurs
+  // Palette de couleurs (privées)
   static const Color _background = Color(0xFFFFFDE1);
   static const Color _titles = Color(0xFF93BD57);
   static const Color _textNormal = Colors.black;
@@ -15,7 +15,20 @@ class AppTheme {
   static const double paddingMedium = 16.0;
   static const double paddingLarge = 24.0;
 
-  // Helper methods pour accéder facilement aux styles
+  // ====== GETTERS PUBLICS POUR BOUTONS ======
+  static Color get buttonBackgroundColor => _buttonBackground;
+  static Color get buttonTextColor => _buttonText;
+
+  static TextStyle buttonTextStyle(BuildContext context) {
+    final buttonFontSize = calculateFontSize(context);
+    return GoogleFonts.lato(
+      color: _buttonText,
+      fontSize: buttonFontSize,
+      fontWeight: FontWeight.bold,
+    );
+  }
+
+  // ====== STYLES TEXTES ======
   static TextStyle titleStyle(BuildContext context) {
     final titleFontSize = calculateTitleFontSize(context);
     return GoogleFonts.roboto(
@@ -27,21 +40,23 @@ class AppTheme {
 
   static TextStyle bodyStyle(BuildContext context) {
     final normalFontSize = calculateFontSize(context);
-    return GoogleFonts.lato(color: _textNormal, fontSize: normalFontSize);
+    return GoogleFonts.lato(
+      color: _textNormal,
+      fontSize: normalFontSize,
+    );
   }
 
+  // ====== THEME DATA POUR FLUTTER ======
   ThemeData theme(BuildContext context) {
     final titleFontSize = calculateTitleFontSize(context);
     final normalFontSize = calculateFontSize(context);
-    final buttonFontSize = calculateFontSize(
-      context,
-    ); // Using same ratio for buttons for now
+    final buttonFontSize = calculateFontSize(context);
 
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: _background,
 
-      // Configuration des couleurs principales
+      // Couleurs principales
       colorScheme: ColorScheme.fromSeed(
         seedColor: _titles,
         surface: _background,
@@ -49,7 +64,7 @@ class AppTheme {
         secondary: _buttonBackground,
       ),
 
-      // Configuration de l'AppBar
+      // AppBar
       appBarTheme: AppBarTheme(
         backgroundColor: _background,
         elevation: 0,
@@ -62,13 +77,16 @@ class AppTheme {
         iconTheme: const IconThemeData(color: _titles),
       ),
 
-      // Configuration des Textes
+      // Textes
       textTheme: TextTheme(
         displayLarge: GoogleFonts.roboto(
           color: _titles,
-          fontSize: titleFontSize * 1.5, // Scaling up for displayLarge
+          fontSize: titleFontSize * 1.5,
         ),
-        titleLarge: GoogleFonts.roboto(color: _titles, fontSize: titleFontSize),
+        titleLarge: GoogleFonts.roboto(
+          color: _titles,
+          fontSize: titleFontSize,
+        ),
         bodyLarge: GoogleFonts.lato(
           color: _textNormal,
           fontSize: normalFontSize,
@@ -80,10 +98,11 @@ class AppTheme {
         labelLarge: GoogleFonts.lato(
           color: _buttonText,
           fontSize: buttonFontSize,
+          fontWeight: FontWeight.bold,
         ),
       ),
 
-      // Configuration des Boutons
+      // Boutons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: _buttonBackground,
@@ -96,12 +115,17 @@ class AppTheme {
             horizontal: paddingLarge,
             vertical: paddingMedium,
           ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
       ),
 
-      // Configuration du Divider
-      dividerTheme: const DividerThemeData(color: _buttonText, thickness: 1),
+      // Divider
+      dividerTheme: const DividerThemeData(
+        color: _buttonText,
+        thickness: 1,
+      ),
     );
   }
 }
